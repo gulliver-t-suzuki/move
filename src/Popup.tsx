@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./Popup.css";
 import TextAreaForm from "./Form";
 
@@ -8,7 +8,11 @@ const Popup = () => {
 
   const handleDragStart = (event: React.MouseEvent) => {
     setIsDragging(true);
-    setDragStartPos({ x: event.clientX, y: event.clientY });
+    const clickedDiv = event.currentTarget;
+    const rect = clickedDiv.getBoundingClientRect(); // クリックされたdivの座標とサイズを取得
+    const clickX = event.clientX - rect.left; // クリックされたdiv内の相対的なX座標
+    const clickY = event.clientY - rect.top;
+    setDragStartPos({ x: clickX, y: clickY });
   };
 
   useEffect(() => {
@@ -37,18 +41,21 @@ const Popup = () => {
     };
   }, [isDragging, dragStartPos]);
 
+  const divRef = useRef<HTMLDivElement>(null);
+
   return (
     <div
+      ref={divRef}
       id="draggedDiv"
       className={isDragging ? "dragging l-popup" : "l-popup"}
       style={{
         position: "fixed",
         top: "0",
         left: "0",
-        width: "400px",
-        height: "300px",
-        userSelect: isDragging ? "none" : "all",
-        cursor: isDragging ? "grabbing" : "grab",
+        minWidth: "400px",
+        minHeight: "300px",
+        maxWidth: "800px",
+        maxHeight: "400px",
         zIndex: "500",
       }}
     >
@@ -68,8 +75,8 @@ const Popup = () => {
         style={{
           position: "absolute",
           top: "0",
-          width: "400px",
-          height: "300px",
+          width: "100%",
+          height: "100%",
           userSelect: isDragging ? "none" : "all",
           cursor: isDragging ? "grabbing" : "grab",
           zIndex: "600",

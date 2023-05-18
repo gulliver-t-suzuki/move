@@ -26,27 +26,31 @@ const FormExample = () => {
 
 export default FormExample;*/
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 const TextAreaForm = () => {
   const [text, setText] = useState("");
   const [inputText, setInputText] = useState("");
   const [savedLines, setSavedLines] = useState<string[]>([]);
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(event.target.value);
   };
 
   const handleSave = () => {
-    const lines = text.split("\n");
+    const lines = text
+      .split("\n")
+      .map((line) => (line.trim() === "" ? "------------" : line)); // 空白以外の要素だけをフィルタリング;
     setSavedLines(lines);
-    setText("");
   };
 
   const handleLineClick = (line: string) => {
     if (inputText === line) {
       // 送信処理
       console.log(line);
+      setInputText("");
     } else {
       setInputText(line);
     }
@@ -57,13 +61,20 @@ const TextAreaForm = () => {
   };
 
   return (
-    <div
-      style={{
-        position: "relative",
-        zIndex: "1000",
-      }}
-    >
-      <textarea value={text} onChange={handleChange} rows={5} cols={30} />
+    <div style={{ position: "relative", zIndex: "1000" }}>
+      <textarea
+        ref={textareaRef}
+        value={text}
+        onChange={handleChange}
+        rows={5}
+        cols={30}
+        style={{
+          width: "100%",
+          height: "80px",
+          resize: "none",
+          boxSizing: "border-box",
+        }}
+      />
       <button onClick={handleSave}>保存</button>
       <input
         type="text"
@@ -74,12 +85,13 @@ const TextAreaForm = () => {
           backgroundColor: "white",
           overflowX: "hidden",
           overflowY: "scroll",
+          boxSizing: "border-box",
         }}
       />
       <div
         style={{
           width: "100%",
-          height: "100px",
+          height: "200px",
           backgroundColor: "white",
           overflowX: "hidden",
           overflowY: "scroll",
@@ -87,9 +99,18 @@ const TextAreaForm = () => {
         }}
       >
         {savedLines.map((line, index) => (
-          <button key={index} onClick={() => handleLineClick(line)}>
+          <p
+            key={index}
+            onClick={() => handleLineClick(line)}
+            style={{
+              fontSize: "14px",
+              borderBottom: "1px solid #AAA",
+              margin: 0,
+              padding: "8px",
+            }}
+          >
             {line}
-          </button>
+          </p>
         ))}
       </div>
     </div>
